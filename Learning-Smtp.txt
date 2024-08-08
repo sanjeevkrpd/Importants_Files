@@ -1,0 +1,62 @@
+using System;
+using System.Net;
+using System.Net.Mail;
+
+namespace LearningSMTP
+{
+    public partial class LearningSMTP : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+        }
+
+        protected void SendMail(object sender, EventArgs e)
+        {
+            // Get the email and message from the form
+            string toEmail = email.Text;
+            string messageBody = txtArea.Text;
+
+            // Create the HTML content for the email body
+            string htmlBody = $@"
+                <html>
+                <body>
+                    <h2>Learning How to Send Email from SMTP</h2>
+                    <p>Dear User,</p>
+                    <p>{messageBody}</p>
+                    <br />
+                    <p>Best Regards,</p>
+                    <p>Design Accent</p>
+                </body>
+                </html>";
+
+            // Create the mail message
+            MailMessage mail = new MailMessage
+            {
+                From = new MailAddress("sanjeevkrpd11@gmail.com"),
+                Subject = "Learning How to Send Email from SMTP",
+                Body = htmlBody,
+                IsBodyHtml = true
+            };
+            mail.To.Add(toEmail);
+
+            // Set up the SMTP client
+            SmtpClient smtp = new SmtpClient("smtp.gmail.com")
+            {
+                Port = 587,
+                Credentials = new NetworkCredential("mailer@dnaworks.in", "qoisttmdyfyabwgf"),
+                EnableSsl = true,
+            };
+
+            try
+            {
+                // Send the email
+                smtp.Send(mail);
+                Response.Write("Email sent successfully!");
+            }
+            catch (Exception ex)
+            {
+                Response.Write("Failed to send email. Error: " + ex.ToString());
+            }
+        }
+    }
+}
