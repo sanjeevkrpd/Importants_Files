@@ -21,3 +21,7 @@ step 3 : Global.asax.cs
         HttpContext.Current.Response.End();
     }
 }
+
+step 4 : In Controller botton of the namespace
+
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
