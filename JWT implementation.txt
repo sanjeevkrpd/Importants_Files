@@ -1,0 +1,87 @@
+
+ Step :1 Install
+
+Microsoft.IdentityModel.Tokens
+System.IdentityModel.Tokens.Jwt
+
+
+ Step :2 Secret Key
+
+<add key="JwtSecretKey" value="thisismysupersecretcodeandthisisprotectedbyalogrithm" />
+
+ Step : 3 Create Token with example
+	
+--> code
+-------- 
+ 
+public JsonResult Login(string username, string password)
+        {
+
+            if (username == "admin" && password == "admin")
+            {
+
+
+                var secretKey = ConfigurationManager.AppSettings["JwtSecretKey"];
+                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+                var claims = new[]
+                {
+                     new Claim(ClaimTypes.Name, username)
+                 };
+
+                var token = new JwtSecurityToken(
+                     claims: claims,
+                     expires: DateTime.Now.AddDays(14),
+                     signingCredentials: credentials
+                );
+
+
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+                return Json(new { username, token = tokenString, msg = "Login Successfully" });
+            }
+
+            return Json(new { username, msg = "Bad Credentials" });
+        }
+
+
+ Step :4 validate token example
+
+----> code
+-------------
+
+public ClaimsPrincipal ValidateJwtToken(string token)
+        {
+
+            var secretKey = ConfigurationManager.AppSettings["JwtSecretKey"];
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                var clockSkew = TimeSpan.FromMinutes(15);
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = securityKey,
+                    ClockSkew = clockSkew
+                };
+
+                ClaimsPrincipal principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+                return principal;
+            }
+            catch (SecurityTokenExpiredException)
+            {
+
+                return null;
+            }
+            catch (Exception)
+            {
+
+                return null;
+            }
+        }
+
