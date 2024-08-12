@@ -5,7 +5,7 @@ Microsoft.IdentityModel.Tokens
 System.IdentityModel.Tokens.Jwt
 
 
- Step :2 Secret Key
+ Step :2 Secret Key in the appsetting --> Web.Config
 
 <add key="JwtSecretKey" value="thisismysupersecretcodeandthisisprotectedbyalogrithm" />
 
