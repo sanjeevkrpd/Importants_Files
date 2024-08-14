@@ -1,0 +1,74 @@
+USE [DB_SANJEEV]
+GO
+
+/****** Object:  StoredProcedure [dbo].[sp_tblRequestRespone]    Script Date: 14-08-2024 12.03.31 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[sp_tblRequestRespone]
+(
+    @Action VARCHAR(100) = NULL,
+    @ID INT = NULL,
+    @MethodName VARCHAR(MAX) = NULL,
+    @ClassName VARCHAR(MAX) = NULL,
+    @Request VARCHAR(MAX) = NULL,
+    @Response VARCHAR(MAX) = NULL,
+    @Exception VARCHAR(MAX) = NULL,
+    @Date DATETIME = NULL
+)
+AS
+BEGIN
+    -- Use explicit transaction handling to ensure consistency
+    BEGIN TRANSACTION
+
+    BEGIN TRY
+        -- Handle insert action
+        IF @Action = 'insert'
+        BEGIN
+            INSERT INTO sp_tblRequestRespone
+            (
+                MethodName,
+                ClassName,
+                Request,
+                Response,
+                Exception,
+                Date
+            )
+            VALUES
+            (
+                @MethodName,
+                @ClassName,
+                @Request,
+                @Response,
+                @Exception,
+                ISNULL(@Date, dbo.getDateIST()) -- Use provided date or default to dbo.getDateIST()
+            );
+
+            -- Delete records older than 5 days
+            WITH temp AS 
+            (
+                SELECT ID 
+                FROM sp_tblRequestRespone
+                WHERE Date <= DATEADD(DAY, -5, SWITCHOFFSET(SYSDATETIMEOFFSET(), '+05:30'))
+            )
+            DELETE FROM sp_tblRequestRespone 
+            WHERE ID IN (SELECT ID FROM temp);
+        END
+
+        -- Commit the transaction
+        COMMIT TRANSACTION
+    END TRY
+    BEGIN CATCH
+        -- Rollback the transaction if an error occurs
+        ROLLBACK TRANSACTION;
+
+        -- Optional: log error or rethrow
+        THROW;
+    END CATCH
+END
+GO
+
+

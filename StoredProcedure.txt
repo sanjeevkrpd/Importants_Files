@@ -1,0 +1,53 @@
+USE [DB_SANJEEV]
+GO
+
+/****** Object:  StoredProcedure [dbo].[sp_GetAllEmployee]    Script Date: 14-08-2024 11.46.11 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[sp_GetAllEmployee]
+(
+    @Action VARCHAR(MAX) = NULL,
+    @id INT = NULL,
+    @name VARCHAR(MAX) = NULL,
+    @email VARCHAR(MAX) = NULL,
+    @gender VARCHAR(MAX) = NULL,
+    @age INT = NULL -- Changed to INT for age
+)
+AS
+BEGIN
+    IF @Action = 'Insert'
+    BEGIN
+        INSERT INTO employee (name, email, gender, age)
+        VALUES (@name, @email, @gender, @age);
+
+        SELECT 'Success' AS Retval;
+    END
+
+    IF @Action = 'Select'
+    BEGIN
+        SELECT 'SUCCESS' AS Retval, *
+        FROM employee;
+    END
+
+	IF @Action = 'Delete'
+	BEGIN
+
+	DELETE FROM employee where id = @id;
+	END
+
+	IF @Action = 'Update'
+
+	BEGIN 
+	update employee 
+		set name = @name , email = @email , gender = @gender , age = @age
+		where id = @id;
+
+	END
+END
+GO
+
+
