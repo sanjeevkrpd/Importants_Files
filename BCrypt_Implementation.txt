@@ -1,0 +1,30 @@
+/*    How to use BCrypt to store password as a hash        */
+
+
+   step1 :    install BCrypt.Net-Next
+
+   step2 :  Inplement
+
+  using System;
+using BCrypt.Net;
+
+class Program
+{
+    public static void Main(string[] args)
+    {
+        string pass1 = "Sanjeev@123";
+        string pass2 = "Sanjeev@124";
+        var hashPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(pass1 , HashType.SHA512,5);
+        Console.WriteLine(hashPassword);
+        var result = BCrypt.Net.BCrypt.Verify(pass2, hashPassword);
+
+        if (result)
+        {
+            Console.WriteLine(true);
+        }
+        else
+        {
+            Console.WriteLine(false);
+        }
+    }
+}
