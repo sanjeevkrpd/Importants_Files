@@ -8,6 +8,25 @@ step 2 : WebApiConfig.cs
         config.EnableCors(cors);
 
 
+ public static void Register(HttpConfiguration config)
+ {
+     var cors = new EnableCorsAttribute("*", "*", "Authorization, Content-Type, Accept");
+     config.EnableCors(cors);
+
+
+
+     // Web API routes
+     config.MapHttpAttributeRoutes();
+
+
+     config.Routes.MapHttpRoute(
+         name: "DefaultApi",
+         routeTemplate: "api/{controller}/{id}",
+         defaults: new { id = RouteParameter.Optional }
+     );
+ }
+
+
 step 3 : Global.asax.cs
 
 	protected void Application_BeginRequest(object sender, EventArgs e)

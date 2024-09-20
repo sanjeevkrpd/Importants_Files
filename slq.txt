@@ -1,0 +1,153 @@
+-- Check for membership update action
+else If(@Action='MembershipUpdate') 
+Begin
+    declare @RenewDate date, @isdelete int, @JoinCode1 varchar(50), @County varchar(100), @States varchar(100), @Cities varchar(100)
+
+    -- Fetch the country, state, and city names based on IDs
+    select @County = name from tblcountries where ID = @Countries
+    select @States = name from tblStates where ID = @State
+    select @Cities = name from tblCities where ID = @City
+
+    -- Fetch existing details from tblJoinMraiForm
+    select @RenewDate = MembershipEndDate, @isdelete = isdelete from tblJoinMraiForm where ID = @ID
+    if(@isdelete = 0)
+    begin
+        -- Update tblJoinMraiForm
+        update tblJoinMraiForm
+        set Country = @Country, NameOfCompany = @NameOfCompany, NameParentCompany = @NameParentCompany,
+            StreetAddress1 = @StreetAddress1, StreetAddress2 = @StreetAddress2, City = @Cities, State = @States,
+            Pincode = @Pincode, Countries = @County, DateOfIncorporation = @DateOfIncorporation,
+            TelephoneCountryCode = @TelephoneCountryCode, TelephoneCityCode = @TelephoneCityCode, TelephoneNo = @TelephoneNo,
+            FaxCountryCode = @FaxCountryCode, FaxCityCode = @FaxCityCode, FaxNo = @FaxNo, EmailID = @EmailID, Website = @Website,
+            NatureOfFirm = @NatureOfFirm, PanCardNumber = @PanCardNumber, GSTNumber = @GSTNumber, Gender = @Gender,
+            LastName = @LastName, FirstName = @FirstName, MiddleName = @MiddleName, Designation = @Designation,
+            MobileCode = @MobileCode, MobileNo = @MobileNo, AdditionalContact = @AdditionalContact, NonFerrousMetals = @NonFerrousMetals,
+            Textiles = @Textiles, Ferrous = @Ferrous, Paper = @Paper, StainlessSteelSpecial = @StainlessSteelSpecial, 
+            Plastics = @Plastics, Tyres = @Tyres, Sectors = @Sectors, Associations = @Associations, ExistingMember = @ExistingMember,
+            Divisions = @Divisions, MembershipStartDate = @MembershipStartDate, MembershipEndDate = @MembershipEndDate,
+            TelephoneCountryCode1 = @TelephoneCountryCode1, TelephoneCityCode1 = @TelephoneCityCode1, TelephoneNo1 = @TelephoneNo1,
+            Password = @Password, CityID = @City, StateId = @State, CountryID = @Countries, ConcernCompany = @ConcernCompany,
+            UpdationDate = dbo.DateTimeIND(), DivisionsOther = @DivisionsOther, SectorsOther = @SectorsOther, MembershipNumber = @MembershipNumber,
+            TotalFees = @TotalFees, OnetimeJoinfee = @OnetimeJoinfee, Subscriptionfee = @Subscriptionfee, PaymentDetails = @PaymentDetails,
+            MemberType = @MemberType, Commant = @Comment, RecivedDate = @RecivedDate, PanCardImg = @PanCardImg, GSTPhoto = @GSTPhoto,
+            OtherDocImg = @OtherDocImg, CertificateOfIncorporation = @CertificateOfIncorporation, MemberCertificationpdf = @MembershipCertification,
+            AddFormupload = @AddFormupload, Zone = @Zone, PaymentStatus = @PaymentStatus, PrimaryDivisions = @PrimaryDivisions,
+            SecondaryFerrous = @SecondaryFerrous, SecondaryNonFerrousMetals = @SecondaryNonFerrousMetals,
+            SecondaryStainlessSteelSpecial = @SecondaryStainlessSteelSpecial, SecondaryPaper = @SecondaryPaper,
+            SecondaryTextiles = @SecondaryTextiles, SecondaryTyres = @SecondaryTyres, SecondaryPlastics = @SecondaryPlastics,
+            PrimarySectorTrader = @PrimarySectorsTrader, PrimarySectorsManufacturer = @PrimarySectorsManufacturer, Memberinvoice = @MemberInvoice
+        where ID = @ID and Isdelete = 0
+
+        -- Check if MembershipEndDate is greater than RenewDate and update accordingly
+        if(@MembershipEndDate > @RenewDate)
+        begin
+            select @JoinCode1 = JoinCode from tblJoinMraiForm where ID = @ID and Isdelete = 0
+
+            insert into tblNew_Renew_Member(JoinCode, TypeMember, Status, MembershipStartDate, MembershipEndDate, Isdelete, Creationdate)
+            values(@JoinCode1, 'Renew', 5, @MembershipStartDate, @MembershipEndDate, 0, dbo.DateTimeIND())
+
+            -- Update tblJoinMraiForm to mark it as renewed
+            update tblJoinMraiForm
+            set RenewDate = dbo.DateTimeIND(), Isdelete = 1, Approved = 0, Isactive = 0
+            where ID = @ID
+        end
+
+        -- Update tblJoinMraiForm2024 similarly
+        update tblJoinMraiForm2024
+        set Country = @Country, NameOfCompany = @NameOfCompany, NameParentCompany = @NameParentCompany,
+            StreetAddress1 = @StreetAddress1, StreetAddress2 = @StreetAddress2, City = @Cities, State = @States,
+            Pincode = @Pincode, Countries = @County, DateOfIncorporation = @DateOfIncorporation,
+            TelephoneCountryCode = @TelephoneCountryCode, TelephoneCityCode = @TelephoneCityCode, TelephoneNo = @TelephoneNo,
+            FaxCountryCode = @FaxCountryCode, FaxCityCode = @FaxCityCode, FaxNo = @FaxNo, EmailID = @EmailID, Website = @Website,
+            NatureOfFirm = @NatureOfFirm, PanCardNumber = @PanCardNumber, GSTNumber = @GSTNumber, Gender = @Gender,
+            LastName = @LastName, FirstName = @FirstName, MiddleName = @MiddleName, Designation = @Designation,
+            MobileCode = @MobileCode, MobileNo = @MobileNo, AdditionalContact = @AdditionalContact, NonFerrousMetals = @NonFerrousMetals,
+            Textiles = @Textiles, Ferrous = @Ferrous, Paper = @Paper, StainlessSteelSpecial = @StainlessSteelSpecial, 
+            Plastics = @Plastics, Tyres = @Tyres, Sectors = @Sectors, Associations = @Associations, ExistingMember = @ExistingMember,
+            Divisions = @Divisions, MembershipStartDate = @MembershipStartDate, MembershipEndDate = @MembershipEndDate,
+            TelephoneCountryCode1 = @TelephoneCountryCode1, TelephoneCityCode1 = @TelephoneCityCode1, TelephoneNo1 = @TelephoneNo1,
+            Password = @Password, CityID = @City, StateId = @State, CountryID = @Countries, ConcernCompany = @ConcernCompany,
+            UpdationDate = dbo.DateTimeIND(), DivisionsOther = @DivisionsOther, SectorsOther = @SectorsOther, MembershipNumber = @MembershipNumber,
+            TotalFees = @TotalFees, OnetimeJoinfee = @OnetimeJoinfee, Subscriptionfee = @Subscriptionfee, PaymentDetails = @PaymentDetails,
+            MemberType = @MemberType, Commant = @Comment, RecivedDate = @RecivedDate, PanCardImg = @PanCardImg, GSTPhoto = @GSTPhoto,
+            OtherDocImg = @OtherDocImg, CertificateOfIncorporation = @CertificateOfIncorporation, MemberCertificationpdf = @MembershipCertification,
+            AddFormupload = @AddFormupload, Zone = @Zone, PaymentStatus = @PaymentStatus, PrimaryDivisions = @PrimaryDivisions,
+            SecondaryFerrous = @SecondaryFerrous, SecondaryNonFerrousMetals = @SecondaryNonFerrousMetals,
+            SecondaryStainlessSteelSpecial = @SecondaryStainlessSteelSpecial, SecondaryPaper = @SecondaryPaper,
+            SecondaryTextiles = @SecondaryTextiles, SecondaryTyres = @SecondaryTyres, SecondaryPlastics = @SecondaryPlastics,
+            PrimarySectorTrader = @PrimarySectorsTrader, PrimarySectorsManufacturer = @PrimarySectorsManufacturer, Memberinvoice = @MemberInvoice
+        where ID = @ID and Isdelete = 0
+
+        -- Check if MembershipEndDate is greater than RenewDate and update accordingly
+        if(@MembershipEndDate > @RenewDate)
+        begin
+            select @JoinCode1 = JoinCode from tblJoinMraiForm2024 where ID = @ID and Isdelete = 0
+
+            insert into tblNew_Renew_Member(JoinCode, TypeMember, Status, MembershipStartDate, MembershipEndDate, Isdelete, Creationdate)
+            values(@JoinCode1, 'Renew', 5, @MembershipStartDate, @MembershipEndDate, 0, dbo.DateTimeIND())
+
+            -- Update tblJoinMraiForm2024 to mark it as renewed
+            update tblJoinMraiForm2024
+            set RenewDate = dbo.DateTimeIND(), Isdelete = 1, Approved = 0, Isactive = 0
+            where ID = @ID
+        end
+
+        select 'Success' [Retval]
+    end
+    else
+    begin
+        -- Update tblJoinMraiForm where Isdelete = 1
+        update tblJoinMraiForm
+        set Country = @Country, NameOfCompany = @NameOfCompany, NameParentCompany = @NameParentCompany,
+            StreetAddress1 = @StreetAddress1, StreetAddress2 = @StreetAddress2, City = @Cities, State = @States,
+            Pincode = @Pincode, Countries = @County, DateOfIncorporation = @DateOfIncorporation,
+            TelephoneCountryCode = @TelephoneCountryCode, TelephoneCityCode = @TelephoneCityCode, TelephoneNo = @TelephoneNo,
+            FaxCountryCode = @FaxCountryCode, FaxCityCode = @FaxCityCode, FaxNo = @FaxNo, EmailID = @EmailID, Website = @Website,
+            NatureOfFirm = @NatureOfFirm, PanCardNumber = @PanCardNumber, GSTNumber = @GSTNumber, Gender = @Gender,
+            LastName = @LastName, FirstName = @FirstName, MiddleName = @MiddleName, Designation = @Designation,
+            MobileCode = @MobileCode, MobileNo = @MobileNo, AdditionalContact = @AdditionalContact, NonFerrousMetals = @NonFerrousMetals,
+            Textiles = @Textiles, Ferrous = @Ferrous, Paper = @Paper, StainlessSteelSpecial = @StainlessSteelSpecial, 
+            Plastics = @Plastics, Tyres = @Tyres, Sectors = @Sectors, Associations = @Associations, ExistingMember = @ExistingMember,
+            Divisions = @Divisions, MembershipStartDate = @MembershipStartDate, MembershipEndDate = @MembershipEndDate,
+            TelephoneCountryCode1 = @TelephoneCountryCode1, TelephoneCityCode1 = @TelephoneCityCode1, TelephoneNo1 = @TelephoneNo1,
+            Password = @Password, CityID = @City, StateId = @State, CountryID = @Countries, ConcernCompany = @ConcernCompany,
+            UpdationDate = dbo.DateTimeIND(), DivisionsOther = @DivisionsOther, SectorsOther = @SectorsOther, MembershipNumber = @MembershipNumber,
+            TotalFees = @TotalFees, OnetimeJoinfee = @OnetimeJoinfee, Subscriptionfee = @Subscriptionfee, PaymentDetails = @PaymentDetails,
+            MemberType = @MemberType, Commant = @Comment, RecivedDate = @RecivedDate, PanCardImg = @PanCardImg, GSTPhoto = @GSTPhoto,
+            OtherDocImg = @OtherDocImg, CertificateOfIncorporation = @CertificateOfIncorporation, MemberCertificationpdf = @MembershipCertification,
+            AddFormupload = @AddFormupload, Zone = @Zone, PaymentStatus = @PaymentStatus, PrimaryDivisions = @PrimaryDivisions,
+            SecondaryFerrous = @SecondaryFerrous, SecondaryNonFerrousMetals = @SecondaryNonFerrousMetals,
+            SecondaryStainlessSteelSpecial = @SecondaryStainlessSteelSpecial, SecondaryPaper = @SecondaryPaper,
+            SecondaryTextiles = @SecondaryTextiles, SecondaryTyres = @SecondaryTyres, SecondaryPlastics = @SecondaryPlastics,
+            PrimarySectorTrader = @PrimarySectorsTrader, PrimarySectorsManufacturer = @PrimarySectorsManufacturer, Memberinvoice = @MemberInvoice
+        where ID = @ID and Isdelete = 1
+
+        -- Update tblJoinMraiForm2024 where Isdelete = 1
+        update tblJoinMraiForm2024
+        set Country = @Country, NameOfCompany = @NameOfCompany, NameParentCompany = @NameParentCompany,
+            StreetAddress1 = @StreetAddress1, StreetAddress2 = @StreetAddress2, City = @Cities, State = @States,
+            Pincode = @Pincode, Countries = @County, DateOfIncorporation = @DateOfIncorporation,
+            TelephoneCountryCode = @TelephoneCountryCode, TelephoneCityCode = @TelephoneCityCode, TelephoneNo = @TelephoneNo,
+            FaxCountryCode = @FaxCountryCode, FaxCityCode = @FaxCityCode, FaxNo = @FaxNo, EmailID = @EmailID, Website = @Website,
+            NatureOfFirm = @NatureOfFirm, PanCardNumber = @PanCardNumber, GSTNumber = @GSTNumber, Gender = @Gender,
+            LastName = @LastName, FirstName = @FirstName, MiddleName = @MiddleName, Designation = @Designation,
+            MobileCode = @MobileCode, MobileNo = @MobileNo, AdditionalContact = @AdditionalContact, NonFerrousMetals = @NonFerrousMetals,
+            Textiles = @Textiles, Ferrous = @Ferrous, Paper = @Paper, StainlessSteelSpecial = @StainlessSteelSpecial, 
+            Plastics = @Plastics, Tyres = @Tyres, Sectors = @Sectors, Associations = @Associations, ExistingMember = @ExistingMember,
+            Divisions = @Divisions, MembershipStartDate = @MembershipStartDate, MembershipEndDate = @MembershipEndDate,
+            TelephoneCountryCode1 = @TelephoneCountryCode1, TelephoneCityCode1 = @TelephoneCityCode1, TelephoneNo1 = @TelephoneNo1,
+            Password = @Password, CityID = @City, StateId = @State, CountryID = @Countries, ConcernCompany = @ConcernCompany,
+            UpdationDate = dbo.DateTimeIND(), DivisionsOther = @DivisionsOther, SectorsOther = @SectorsOther, MembershipNumber = @MembershipNumber,
+            TotalFees = @TotalFees, OnetimeJoinfee = @OnetimeJoinfee, Subscriptionfee = @Subscriptionfee, PaymentDetails = @PaymentDetails,
+            MemberType = @MemberType, Commant = @Comment, RecivedDate = @RecivedDate, PanCardImg = @PanCardImg, GSTPhoto = @GSTPhoto,
+            OtherDocImg = @OtherDocImg, CertificateOfIncorporation = @CertificateOfIncorporation, MemberCertificationpdf = @MembershipCertification,
+            AddFormupload = @AddFormupload, Zone = @Zone, PaymentStatus = @PaymentStatus, PrimaryDivisions = @PrimaryDivisions,
+            SecondaryFerrous = @SecondaryFerrous, SecondaryNonFerrousMetals = @SecondaryNonFerrousMetals,
+            SecondaryStainlessSteelSpecial = @SecondaryStainlessSteelSpecial, SecondaryPaper = @SecondaryPaper,
+            SecondaryTextiles = @SecondaryTextiles, SecondaryTyres = @SecondaryTyres, SecondaryPlastics = @SecondaryPlastics,
+            PrimarySectorTrader = @PrimarySectorsTrader, PrimarySectorsManufacturer = @PrimarySectorsManufacturer, Memberinvoice = @MemberInvoice
+        where ID = @ID and Isdelete = 1
+
+        select 'Success' [Retval]
+    end
+End
