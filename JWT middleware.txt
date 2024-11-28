@@ -1,0 +1,85 @@
+1 install the jwt 
+
+2 create a folder Filters
+
+3 create a JwtAuthorization.cs file
+
+4 Implement this code and wherever we need to implement this just use above of any api [JwtAuthorization]and all set 
+
+using System;
+using System.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Web.Mvc;
+using Microsoft.IdentityModel.Tokens;
+
+public class JwtAuthorizationAttribute : ActionFilterAttribute
+{
+    private readonly string _secretKey = ConfigurationManager.AppSettings["JwtSecretKey"];
+
+    public override void OnActionExecuting(ActionExecutingContext filterContext)
+    {
+        try
+        {
+            var authHeader = filterContext.HttpContext.Request.Headers["Authorization"];
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                filterContext.Result = new JsonResult
+                {
+                    Data = new { message = "Token is missing or invalid", success = false },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                };
+                return;
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+            var principal = ValidateJwtToken(token);
+            if (principal == null)
+            {
+                filterContext.Result = new JsonResult
+                {
+                    Data = new { message = "Invalid Token", success = false },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                };
+                return;
+            }
+
+           
+            filterContext.HttpContext.User = principal;
+        }
+        catch (Exception ex)
+        {
+            filterContext.Result = new JsonResult
+            {
+                Data = new { message = ex.Message, success = false },
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+        }
+    }
+
+    private ClaimsPrincipal ValidateJwtToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_secretKey);
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero
+        };
+
+        try
+        {
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+            return principal;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+}
