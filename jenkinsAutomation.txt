@@ -1,0 +1,123 @@
+// pipeline {
+//     agent any
+
+//     environment {
+//         NVM_DIR = '/home/devops/.nvm'
+//         NODE_PATH = '/home/devops/.nvm/versions/node/v22.12.0/bin'
+//         APP_DIR = '/home/devops/Apps/NextJs/mahaagromart'
+//     }
+
+//     stages {
+//         stage('Pull Latest Code') {
+//             steps {
+//                 dir("${APP_DIR}") {
+//                     sh '''
+//                     #!/bin/bash
+//                     set -e
+//                     git config --global --add safe.directory ${APP_DIR}
+//                     git stash
+//                     git checkout main
+//                     git pull origin main
+//                     '''
+//                 }
+//             }
+//         }
+
+//         stage('Install & Build') {
+//             steps {
+//                 dir("${APP_DIR}") {
+//                     sh '''
+//                     #!/bin/bash
+//                     set -e
+//                     . ${NVM_DIR}/nvm.sh
+//                     ${NODE_PATH}/npm install
+//                     ${NODE_PATH}/npm run build
+//                     '''
+//                 }
+//             }
+//         }
+
+//         stage('Restart PM2') {
+//             steps {
+//                 sh '''
+//                 #!/bin/bash
+//                 set -e
+//                 sudo -u devops bash -c ". /home/devops/.nvm/nvm.sh && /home/devops/.nvm/versions/node/v22.12.0/bin/pm2 restart web-mahaagromart"
+//                 '''
+//             }
+//         }
+//     }
+
+//     post {
+//         success {
+//             echo 'Pipeline completed successfully! The mahaagromart application has been updated and restarted.'
+//         }
+//         failure {
+//             echo 'Pipeline failed. Please check the console output for errors.'
+//         }
+//     }
+// }
+
+pipeline {
+    agent any
+
+    triggers {
+        githubPush()
+    }
+
+    environment {
+        NVM_DIR = '/home/devops/.nvm'
+        NODE_PATH = '/home/devops/.nvm/versions/node/v22.12.0/bin'
+        APP_DIR = '/home/devops/Apps/NextJs/mahaagromart'
+    }
+
+    stages {
+        stage('Pull Latest Code') {
+            steps {
+                dir("${APP_DIR}") {
+                    sh '''
+                    #!/bin/bash
+                    set -e
+                    git config --global --add safe.directory ${APP_DIR}
+                    git stash
+                    git checkout main
+                    git pull origin main
+                    '''
+                }
+            }
+        }
+
+        stage('Install & Build') {
+            steps {
+                dir("${APP_DIR}") {
+                    sh '''
+                    #!/bin/bash
+                    set -e
+                    . ${NVM_DIR}/nvm.sh
+                    ${NODE_PATH}/npm install
+                    ${NODE_PATH}/npm run build
+                    '''
+                }
+            }
+        }
+
+        stage('Restart PM2') {
+            steps {
+                sh '''
+                #!/bin/bash
+                set -e
+                sudo -u devops bash -c ". /home/devops/.nvm/nvm.sh && /home/devops/.nvm/versions/node/v22.12.0/bin/pm2 restart web-mahaagromart"
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully! The mahaagromart application has been updated and restarted.'
+        }
+        failure {
+            echo 'Pipeline failed. Please check the console output for errors.'
+        }
+    }
+}
